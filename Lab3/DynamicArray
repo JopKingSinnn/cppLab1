@@ -1,0 +1,49 @@
+struct DynamicArray {
+int * data = nullptr;
+size_t size = 0;
+size_t capacity = 0;
+};
+
+DynamicArray& reserve(DynamicArray & da, unsigned capacity) {
+if (capacity > da.capacity) {
+DynamicArray new_da;
+new_da.capacity = capacity;
+
+int* new_data = new int[capacity];
+memcpy(new_data, da.data, da.size * sizeof(int));
+new_da.size = da.size;
+new_da.data = new_data;
+
+delete[] da.data;
+da = new_da;
+}
+return da;
+}
+
+DynamicArray clone(DynamicArray & da) {
+DynamicArray new_da;
+new_da.capacity = da.size;
+new_da.size = da.size;
+
+int* new_data = new int[da.size];
+memcpy(new_data, da.data, da.size * sizeof(int));
+new_da.data = new_data;
+
+return new_da;
+}
+
+DynamicArray& assign(DynamicArray const & src, DynamicArray & dst) {
+reserve(dst, src.size);
+memcpy(dst.data, src.data, src.size * sizeof(int));
+dst.size = src.size;
+return dst;
+}
+
+DynamicArray& push_back(DynamicArray & da, int val) {
+if (da.size == da.capacity) {
+auto new_capacity = da.capacity > 0 ? da.capacity * 2 : 1;
+reserve(da, new_capacity);
+}
+da.data[da.size++] = val;
+return da;
+}
