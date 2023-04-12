@@ -1,70 +1,91 @@
 #include <iostream>
+using namespace std;
 
 struct LinkedList {
-int value;
-LinkedList* next;
-
-LinkedList(int val = 0, LinkedList* n = nullptr) : value(val), next(n) {}
+    int value;
+    LinkedList* next;
 };
 
-LinkedList* insert_after(LinkedList* const current, int val) {
-LinkedList* new_node = new LinkedList(val, nullptr);
-if (!current) {
-return new_node;
-}
-new_node->next = current->next;
-current->next = new_node;
-return new_node;
+LinkedList* insert_after(LinkedList* const current, int value) {
+    LinkedList* new_elem = new LinkedList{ value, nullptr };
+    if (current != nullptr) {
+        new_elem->next = current->next;
+        current->next = new_elem;
+    }
+    return new_elem;
 }
 
 LinkedList* remove_after(LinkedList* const current) {
-if (!current || !current->next) {
-return nullptr;
-}
-LinkedList* node_to_delete = current->next;
-current->next = current->next->next;
-delete node_to_delete;
-return current->next;
+    if (current == nullptr) {
+        return nullptr;
+    }
+    LinkedList* next_elem = current->next;
+    if (next_elem != nullptr) {
+        current->next = next_elem->next;
+        delete next_elem;
+    }
+    return current->next;
 }
 
 void erase(LinkedList* const head) {
-LinkedList* current = head;
-while (current) {
-LinkedList* next_node = current->next;
-delete current;
-current = next_node;
-}
+    LinkedList* current = head;
+    while (current != nullptr) {
+        LinkedList* next_elem = current->next;
+        delete current;
+        current = next_elem;
+    }
 }
 
 LinkedList* reverse_rec(LinkedList* const head) {
-if (!head || !head->next) {
-return head;
-}
-LinkedList* new_head = reverse_rec(head->next);
-head->next->next = head;
-head->next = nullptr;
-return new_head;
+    if (head == nullptr) {
+        return nullptr;
+    }
+    if (head->next == nullptr) {
+        return head;
+    }
+    LinkedList* const new_head = reverse_rec(head->next);
+    head->next->next = head;
+    head->next = nullptr;
+    return new_head;
 }
 
 LinkedList* reverse_itr(LinkedList* const head) {
-LinkedList* prev_node = nullptr;
-LinkedList* current_node = head;
-while (current_node) {
-LinkedList* next_node = current_node->next;
-current_node->next = prev_node;
-prev_node = current_node;
-current_node = next_node;
-}
-return prev_node;
+    LinkedList* previous = nullptr;
+    LinkedList* current = head;
+    while (current != nullptr) {
+        LinkedList* const next_elem = current->next;
+        current->next = previous;
+        previous = current;
+        current = next_elem;
+    }
+    return previous;
 }
 
 int main() {
-LinkedList* head = nullptr;
-head = insert_after(head, 1); // 1
-LinkedList* second_node = insert_after(head, 2); // 1 -> 2
-insert_after(second_node, 3); // 1 -> 2 -> 3
-remove_after(head); // 1 -> 3
-LinkedList* new_head = reverse_rec(head); // 3 -> 1
-erase(new_head); // deletes all nodes
-return 0;
+    LinkedList* head = insert_after(nullptr, 1);
+    LinkedList* elem2 = insert_after(head, 2);
+    insert_after(elem2, 3);
+    cout << "List: ";
+    for (LinkedList* current = head; current != nullptr; current = current->next) {
+        cout << current->value << ' ';
+    }
+    cout << std::endl;
+
+    cout << "Reverse list recursively: ";
+    LinkedList* reverse_head = reverse_rec(head);
+    for (LinkedList* current = reverse_head; current != nullptr; current = current->next) {
+        cout << current->value << ' ';
+    }
+    cout << std::endl;
+
+    cout << "Reverse list iteratively: ";
+    reverse_head = reverse_itr(reverse_head);
+    for (LinkedList* current = reverse_head; current != nullptr; current = current->next) {
+        cout << current->value << ' ';
+    }
+    cout << std::endl;
+
+    erase(reverse_head);
+
+    return 0;
 }
