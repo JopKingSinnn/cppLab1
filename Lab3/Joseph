@@ -1,0 +1,57 @@
+#include <iostream>
+
+struct CircularBuffer {
+	int value=0;
+	CircularBuffer *next=nullptr;
+};
+
+void print_buffer(CircularBuffer *start) {
+	std::cout << start->value << std::endl;
+	CircularBuffer *current = start->next;
+	while (current != start) {
+		std::cout << current->value << std::endl;
+		current = current->next;
+	}
+}
+
+int josephus_circle(CircularBuffer *start, int k) {
+	CircularBuffer *current = start;
+	while (current->next != current) {
+		for (int i = 1; i < k; i++) {
+			current = current->next;
+		}
+		CircularBuffer *node_to_remove = current->next;
+		current->next = node_to_remove->next;
+		std::cout << "Dead: " << node_to_remove->value << std::endl;
+		delete node_to_remove;
+	}
+	return current->value;
+}
+// second method using dynamic arrays
+int josephus_array(int *arr, int n, int k) {
+	int index = 0;
+	std::cout << "using array: " << std::endl;
+	while (n > 1) {
+		index = (index + k - 1) % n;
+		std::cout << "Removed node with value " << arr[index] << std::endl;
+		for (int i = index; i < n - 1; i++) {
+			arr[i] = arr[i + 1];
+		}
+		n--;
+	}
+	return arr[0];
+}
+
+int main() {
+	std::cout << "using buffer: " << std::endl;
+	CircularBuffer* start = new CircularBuffer{1};
+	start->next = new CircularBuffer{2};
+	start->next->next = new CircularBuffer{3};
+	start->next->next->next = new CircularBuffer{4};
+	start->next->next->next->next = start;
+	print_buffer(start);
+	std::cout << "Last standing: " << josephus_circle(start, 3) << std::endl;
+	int arr[] = { 1, 2, 3};
+	std::cout << "place to stand on: " << josephus_array(arr, 3, 3) << std::endl;
+	return 0;
+}
