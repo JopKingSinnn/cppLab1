@@ -1,49 +1,97 @@
+#include <iostream>
+using namespace std;
+
 struct DynamicArray {
-int * data = nullptr;
-size_t size = 0;
-size_t capacity = 0;
+	int* elements = nullptr;
+	unsigned capacity = 0, size = 0;
 };
 
-DynamicArray& reserve(DynamicArray & da, unsigned capacity) {
-if (capacity > da.capacity) {
-DynamicArray new_da;
-new_da.capacity = capacity;
-
-int* new_data = new int[capacity];
-memcpy(new_data, da.data, da.size * sizeof(int));
-new_da.size = da.size;
-new_da.data = new_data;
-
-delete[] da.data;
-da = new_da;
-}
-return da;
+DynamicArray new_array(unsigned size, int init_val = 0) {
+    DynamicArray da;
+    da.size = size;
+    da.capacity = size*3/2 + 1; // вычисляем capacity как size * 1.5, округлённый вверх
+    da.elements = new int[da.capacity];
+    for (unsigned i = 0; i < size; i++)
+        da.elements[i] = init_val;
+    return da;
 }
 
-DynamicArray clone(DynamicArray & da) {
-DynamicArray new_da;
-new_da.capacity = da.size;
-new_da.size = da.size;
-
-int* new_data = new int[da.size];
-memcpy(new_data, da.data, da.size * sizeof(int));
-new_da.data = new_data;
-
-return new_da;
+void erase(DynamicArray& da) {
+    delete[] da.elements;
+    da.elements = nullptr;
+    da.size = 0;
+    da.capacity = 0;
 }
 
-DynamicArray& assign(DynamicArray const & src, DynamicArray & dst) {
-reserve(dst, src.size);
-memcpy(dst.data, src.data, src.size * sizeof(int));
-dst.size = src.size;
-return dst;
+DynamicArray& reserve(DynamicArray& da, unsigned capacity) {
+    if (capacity <= da.capacity) {
+        return da;
+    }
+
+    int* newElements = new int[capacity];
+    for (unsigned i = 0; i < da.size; i++) {
+        newElements[i] = da.elements[i];
+    }
+
+    delete[] da.elements;
+    da.elements = newElements;
+    da.capacity = capacity;
+
+    return da;
 }
 
-DynamicArray& push_back(DynamicArray & da, int val) {
-if (da.size == da.capacity) {
-auto new_capacity = da.capacity > 0 ? da.capacity * 2 : 1;
-reserve(da, new_capacity);
+DynamicArray clone(DynamicArray& da) {
+    DynamicArray newDa;
+    newDa.elements = new int[da.size];
+    for (unsigned i = 0; i < da.size; i++) {
+        newDa.elements[i] = da.elements[i];
+    }
+    newDa.size = da.size;
+    newDa.capacity = da.size;
+    return newDa;
 }
-da.data[da.size++] = val;
-return da;
+
+DynamicArray& assign(DynamicArray const& src, DynamicArray& dst) {
+    if (src.capacity > dst.capacity) {
+        reserve(dst, src.capacity);
+    }
+
+    for (unsigned i = 0; i < src.size; i++) {
+        dst.elements[i] = src.elements[i];
+    }
+
+    dst.size = src.size;
+    return dst;
+}
+
+DynamicArray& push_back(DynamicArray& da, int val) {
+    if (da.size >= da.capacity) {
+        reserve(da, da.capacity * 2);
+    }
+
+    da.elements[da.size] = val;
+    da.size++;
+
+    return da;
+}
+
+int main() {
+    //new_array, erase
+    DynamicArray array = new_array(20, 121);
+    cout << array.elements[3] << endl;
+    erase(array);
+    //clone
+    DynamicArray array_3 = clone(array);
+    cout << array_3.elements[10] << endl;
+    //assign
+    DynamicArray array_4 = new_array(10, 327);
+    DynamicArray array_5 = new_array(7, 43);
+    cout << array_5.elements[9] << endl;
+    array_5 = assign(array_4, array_5);
+    cout << array_5.elements[9] << endl;
+    //push_back
+    DynamicArray array_6 = new_array(10, 45);
+    push_back(array_6, 9);
+    cout << array_6.elements[10] << endl;
+
 }
