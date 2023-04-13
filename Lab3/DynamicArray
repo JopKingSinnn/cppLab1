@@ -24,9 +24,6 @@ void erase(DynamicArray& da) {
 }
 
 DynamicArray& reserve(DynamicArray& da, unsigned capacity) {
-    if (capacity <= da.capacity) {
-        return da;
-    }
 
     int* newElements = new int[capacity];
     for (unsigned i = 0; i < da.size; i++) {
