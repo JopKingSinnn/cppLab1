@@ -1,34 +1,29 @@
 #include <iostream>
 
 struct CircularBuffer {
-	int value=0;
-	CircularBuffer *next=nullptr;
+	int value;
+	CircularBuffer* next;
+
+	CircularBuffer(int val) : value(val), next(nullptr) {}
 };
 
-void print_buffer(CircularBuffer *start) {
-	std::cout << start->value << std::endl;
-	CircularBuffer *current = start->next;
-	while (current != start) {
-		std::cout << current->value << std::endl;
-		current = current->next;
-	}
-}
-
-int josephus_circle(CircularBuffer *start, int k) {
-	CircularBuffer *current = start;
+int josephus_circle(CircularBuffer* start, int k) {
+	CircularBuffer* current = start;
 	while (current->next != current) {
 		for (int i = 1; i < k; i++) {
 			current = current->next;
 		}
-		CircularBuffer *node_to_remove = current->next;
+		CircularBuffer* node_to_remove = current->next;
 		current->next = node_to_remove->next;
 		std::cout << "Dead: " << node_to_remove->value << std::endl;
 		delete node_to_remove;
 	}
 	return current->value;
 }
+
 // second method using dynamic arrays
-int josephus_array(int *arr, int n, int k) {
+
+int josephus_array(int* arr, int n, int k) {
 	int index = 0;
 	std::cout << "using array: " << std::endl;
 	while (n > 1) {
@@ -43,15 +38,18 @@ int josephus_array(int *arr, int n, int k) {
 }
 
 int main() {
-	std::cout << "using buffer: " << std::endl;
-	CircularBuffer* start = new CircularBuffer{1};
-	start->next = new CircularBuffer{2};
-	start->next->next = new CircularBuffer{3};
-	start->next->next->next = new CircularBuffer{4};
-	start->next->next->next->next = start;
-	print_buffer(start);
-	std::cout << "Last standing: " << josephus_circle(start, 3) << std::endl;
-	int arr[] = { 1, 2, 3};
-	std::cout << "place to stand on: " << josephus_array(arr, 3, 3) << std::endl;
+	const int n = 5;
+	int k = 3;
+	CircularBuffer* start = new CircularBuffer(1);
+	CircularBuffer* arr_cb[n];
+	arr_cb[1] = start;
+	for (int i = 2; i <= n; ++i) {
+		arr_cb[i] = new CircularBuffer(i);
+		arr_cb[i - 1]->next = arr_cb[i];
+	}
+	arr_cb[n]->next = arr_cb[1];
+	std::cout << "Last standing: " << josephus_circle(arr_cb[n], k) << std::endl;
+	int arr_da[] = { 1, 2, 3, 4, 5 };
+	std::cout << "place to stand on: " << josephus_array(arr_da, n, k) << std::endl;
 	return 0;
 }
