@@ -1,0 +1,113 @@
+#include <iostream>
+
+using namespace std;
+
+
+template<typename T> struct Node {						// Лекало для вершины дерева
+	T data;													// Место для поля данных
+	Node* left = nullptr, * right = nullptr;						// для адресов левого и правого поддеревьев
+	Node(T d) : data(d) {}									// Конструктор
+};
+template<typename T> using Tree = Node<T>*;				// Определение типа "дерево" 
+
+template<typename T> void insert_bst(Tree<T>& a, T k) {		// Бинарное дерево поиска: key_left < key_root < key_right
+	if (a == nullptr)										// если дерево пустое
+		a = new Node<T>(k);									// создадим корень
+	else
+		if (k < a->data) insert_bst(a->left, k);					// Вставить в левое поддерево	
+		else insert_bst(a->right, k);							// или в правое поддерево
+}
+
+template<typename T> Node<T>* find(const Tree<T>& a, T key) {
+	if (a == nullptr) return nullptr;						// В пустом дереве искать нечего
+	if (a->data == key) return a;							// Нашли узел с ключом
+	else
+		if (key < a->data) return find(a->left, key);		// Искать в левом поддреве
+		else  return find(a->right, key);					// иначе - в правом
+}
+template<typename T> void Delete(Tree<T>& a, T k) {
+	
+	auto x = a;											// Бегунок по вершинам дерева до искомой
+	decltype(x) p = nullptr;							// Тут будет родительская вершина 
+	while (x->data != k) {								// Пока не найдена нужная вершина
+		p = x;												// старая текущая будет теперь родительской
+		if (k < x->data) x = x->left;						// переход к следующей вершине дерева
+		else x = x->right;
+	}
+	if (p == nullptr) a = merger(a->left, a->right);			// Слияние в корне дерева
+	else (k < p->data ? p->left : p->right) = merger(x->left, x->right);	// Результат слияния в соответствующее поле родителя
+	delete x;												// Теперь вершину с ключом k можно удалить
+}
+template<typename T> Node<T>* find_min(Tree<T> a) {
+	if (a == nullptr) return nullptr;						// В пустом дереве искать нечего
+	while (a->left != nullptr) a = a->left;					// Минимальный ключ в самом левом нижнем узле 
+	return a;
+}
+template<typename T> Node<T>* find_max(Tree<T> a) {
+	if (a == nullptr) return nullptr;						// В пустом дереве искать нечего
+	while (a->right != nullptr) a = a->right;				// Максимальный ключ в самом правом нижнем узле
+	return a;
+}
+template<typename T> Tree<T> merger(Tree<T> a, Tree<T> b) {	// Соединение поддеревьев
+	if (a == nullptr) return b;								// Если левое пустое
+	if (b == nullptr) return a;								// Если правое пустое
+	auto r = find_min(b);									// Новым корнем пусть будет минимальный элемент правого поддерева
+	r->left = a;											// Добавим левое поддерево
+	if (r != b) {											// Если минимальный элемент правого поддерева не был его корнем
+		r->right = b;											// Добавим правое поддерево
+		while (b->left != r) b = b->left;						// Найдем в нем ссылку на минимальный элемент
+		b->left = nullptr;										// и удалим её											
+	}
+	return r;
+}
+
+template<typename T> void print(const Tree<T>& b, unsigned k = 0) {	// k - высота узла в дереве
+	if (b == nullptr) {										// печать терминального симлова ветви
+		for (auto i = 0u; i < k; ++i) cout << '\t';
+		cout << '*' << endl;
+	}
+	else {
+		print(b->right, k + 1);								// печать правой ветви
+		for (auto i = 0u; i < k; ++i) cout << '\t'; 				// печать ключа узла
+		cout << b->data << endl;
+		print(b->left, k + 1);									// печать левой ветви
+	}
+}
+
+template<typename T> void delete_tree(Tree<T>& a) {
+	if (a != nullptr) {
+		delete_tree(a->left);								// Очистить левое поддерево
+		delete_tree(a->right);								// Очистить правое поддерево
+		delete a;											// Освободить место, занятое узлом
+		a = nullptr;
+	}
+}
+
+
+
+int main() {
+	{
+		setlocale(0, "rus");
+		unsigned n;
+		cout << "Введите число вершин дерева: ";
+		cin >> n;
+		Tree<unsigned> a = nullptr;
+		for (auto i = 0u; i < n; ++i) insert_bst(a, unsigned(rand() % 100));	// Построим дерево поиска
+		print(a);														// Его печать
+		cout << "Минимальный ключ: " << find_min(a)->data << endl;
+		cout << "Максимальный ключ: " << find_max(a)->data << endl;
+		cout << "-------------------------------------\n";
+		unsigned k;
+		do {
+			cout << "Удалить вершину дерева с ключом: ";
+			cin >> k;
+		}												// Запрашиваем новый ключ
+		while (find(a, k) == nullptr);								// пока потытка найти такой не будет удачной
+		Delete(a, k);												// Удалить ключ и перестроить дерево
+		print(a);
+		cout << "-------------------------------------\n";
+		
+		delete_tree(a);												// Освобождение памяти, занятой деревом
+	}
+
+}
