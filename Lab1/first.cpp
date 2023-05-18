@@ -60,8 +60,8 @@ int main() {
 			std::uniform_int_distribution <unsigned> dstr(0, 2 * n - 1);
 			b = A[dstr(rng)];
 			//searchln(A, b, n);
-			//searchall(A, b, n);
-			chislaall(A, b, n);
+			searchall(A, b, n);
+			
 
 		}
 		auto end = std::chrono::steady_clock::now();
