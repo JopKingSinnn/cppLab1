@@ -29,17 +29,9 @@ bool searchln(std::vector<int>& a, int i, int n) {
 	}
 
 }
-
-bool chislaall(std::vector<int>& a, int c, int n) {
-	for (int i = 0; i < n; i++) {
-		for (int j = i; j < n; j++) {
-			if ((a[i] + a[j]) == c)return true;
-
-		}
-	}
-	return false;
-
-}
+	
+	
+		
 
 int main() {
 	freopen("sources.csv", "w", stdout);
