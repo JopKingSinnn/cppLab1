@@ -4,7 +4,7 @@
 #include<random>
 
 
-bool chislaall(int a[], int c, int n) {
+bool sum_of_two(int a[], int c, int n) {
 	for (int i = 0; i < n; i++) {
 		for (int j = i; j < n; j++) {
 			if ((a[i] + a[j]) == c)return true;
@@ -30,7 +30,8 @@ int main() {
 		for (int j = 0; j < 1000; j++) {
 			std::uniform_int_distribution <unsigned> dstr(0, N[i] - 1);
 			b = a[dstr(rng)] + a[dstr(rng)];
-			chislaall(a, 16000000, N[i]);
+			
+			(a, 16000000, N[i]);
 
 		}
 		auto end = std::chrono::steady_clock::now();
